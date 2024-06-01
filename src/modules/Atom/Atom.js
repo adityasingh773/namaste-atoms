@@ -7,7 +7,7 @@ import { calculateElectronDistribution, randomPositionInSphere } from './helpers
 
 class Atom {
   constructor(scene, atomicNumber, neutronNumber) {
-    this.scene = scene;
+    this.group = new THREE.Group();
     this.atomicNumber = atomicNumber;
     this.neutronNumber = neutronNumber;
     this.protons = [];
@@ -17,18 +17,22 @@ class Atom {
 
     this.createNucleus();
     this.createElectrons();
+
+    scene.add(this.group); // Add the entire group to the scene
+
+    this.render(); // Start the animation loop
   }
 
   createNucleus() {
     for (let i = 0; i < this.atomicNumber; i++) {
       const proton = new Proton(randomPositionInSphere(0.5));
-      proton.addToScene(this.scene);
+      this.group.add(proton.mesh);
       this.protons.push(proton);
     }
 
     for (let i = 0; i < this.neutronNumber; i++) {
       const neutron = new Neutron(randomPositionInSphere(0.5));
-      neutron.addToScene(this.scene);
+      this.group.add(neutron.mesh);
       this.neutrons.push(neutron);
     }
   }
@@ -39,13 +43,13 @@ class Atom {
     electronsInOrbits.forEach((count, orbitIndex) => {
       const orbitRadius = 2 + orbitIndex * 2; // Example radius calculation
       const orbit = new Orbit(orbitRadius);
-      orbit.addToScene(this.scene);
+      this.group.add(orbit.path);
       this.orbits.push(orbit);
 
       for (let i = 0; i < count; i++) {
         const angle = (i / count) * 2 * Math.PI;
         const electron = new Electron(new THREE.Vector3(Math.cos(angle) * orbitRadius, 0, Math.sin(angle) * orbitRadius));
-        electron.addToScene(this.scene);
+        this.group.add(electron.mesh);
         this.electrons.push({ particle: electron, orbitRadius, angle });
       }
     });
@@ -59,6 +63,12 @@ class Atom {
         Math.sin(time + electron.angle) * electron.orbitRadius,
       );
     });
+  }
+
+  render() {
+    requestAnimationFrame(this.render.bind(this));
+    const time = Date.now() * 0.001;
+    this.animateElectrons(time);
   }
 }
 

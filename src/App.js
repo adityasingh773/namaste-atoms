@@ -16,6 +16,7 @@ class App {
     this.addAtom();
     this.addOrbitControls();
     this.addEventListeners();
+    this.render();
   }
 
   addLights() {
@@ -44,17 +45,9 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  animate() {
-    requestAnimationFrame(this.animate.bind(this));
-
-    const time = Date.now() * 0.001;
-    this.atom.animateElectrons(time);
-
+  render() {
+    requestAnimationFrame(this.render.bind(this));
     this.renderer.render(this.scene, this.camera);
-  }
-
-  init() {
-    this.animate();
   }
 }
 
