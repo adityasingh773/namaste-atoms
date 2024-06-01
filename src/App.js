@@ -53,21 +53,28 @@ class App {
     // Example reaction trigger: if atoms are close enough, trigger their reaction methods
     for (let i = 0; i < this.atoms.length; i++) {
       for (let j = i + 1; j < this.atoms.length; j++) {
-        const distance = this.atoms[i].group.position.distanceTo(this.atoms[j].group.position);
-        const combinedRadius = this.atoms[i].radius + this.atoms[j].radius;
-        if (distance < combinedRadius) {
-          this.createBond(this.atoms[i], this.atoms[j]);
-          // Adjust positions to maintain the minimum distance, but only once
-          if (!this.atoms[i].hasReacted && !this.atoms[j].hasReacted) {
-            const direction = this.atoms[i].group.position.clone().sub(this.atoms[j].group.position).normalize();
-            const positionOffset = direction.multiplyScalar(combinedRadius / 2);
-            const midPoint = this.atoms[i].group.position.clone().add(this.atoms[j].group.position).divideScalar(2);
-            this.atoms[i].group.position.copy(midPoint.clone().add(positionOffset));
-            this.atoms[j].group.position.copy(midPoint.clone().sub(positionOffset));
-            this.atoms[i].hasReacted = true;
-            this.atoms[j].hasReacted = true;
-            this.atoms[i].setTargetPosition(this.atoms[i].group.position); // Stop movement
-            this.atoms[j].setTargetPosition(this.atoms[j].group.position); // Stop movement
+        if (this.atoms[i].canReact && this.atoms[j].canReact) { // Check if both atoms can react
+          const distance = this.atoms[i].group.position.distanceTo(this.atoms[j].group.position);
+          const combinedRadius = this.atoms[i].radius + this.atoms[j].radius;
+          if (distance < combinedRadius) {
+            this.createBond(this.atoms[i], this.atoms[j]);
+            // Adjust positions to maintain the minimum distance, but only once
+            if (!this.atoms[i].hasReacted && !this.atoms[j].hasReacted) {
+              const direction = this.atoms[i].group.position.clone().sub(this.atoms[j].group.position).normalize();
+              const positionOffset = direction.multiplyScalar(combinedRadius / 2);
+              const midPoint = this.atoms[i].group.position.clone().add(this.atoms[j].group.position).divideScalar(2);
+              this.atoms[i].group.position.copy(midPoint.clone().add(positionOffset));
+              this.atoms[j].group.position.copy(midPoint.clone().sub(positionOffset));
+              this.atoms[i].hasReacted = true;
+              this.atoms[j].hasReacted = true;
+              this.atoms[i].setTargetPosition(this.atoms[i].group.position); // Stop movement
+              this.atoms[j].setTargetPosition(this.atoms[j].group.position); // Stop movement
+
+              // Update valence electrons after bond formation
+              const bondedElectrons = [this.atoms[i].electrons.pop(), this.atoms[j].electrons.pop()];
+              this.atoms[i].updateValenceElectrons(bondedElectrons);
+              this.atoms[j].updateValenceElectrons(bondedElectrons);
+            }
           }
         }
       }
