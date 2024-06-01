@@ -22,6 +22,7 @@ class Atom {
 
     this.createNucleus();
     this.createElectrons();
+    this.createShell(); // Create the transparent shell
 
     scene.add(this.group); // Add the entire group to the scene
     this.calculateRadius(); // Calculate the radius based on the outermost orbit
@@ -57,6 +58,14 @@ class Atom {
         this.electrons.push({ particle: electron, orbitRadius, angle });
       }
     });
+  }
+
+  createShell() {
+    this.calculateRadius();
+    const geometry = new THREE.SphereGeometry(this.radius/2, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.3 });
+    const shell = new THREE.Mesh(geometry, material);
+    this.group.add(shell);
   }
 
   calculateRadius() {

@@ -57,10 +57,18 @@ class App {
         const combinedRadius = this.atoms[i].radius + this.atoms[j].radius;
         if (distance < combinedRadius) {
           this.createBond(this.atoms[i], this.atoms[j]);
-          // Adjust positions to maintain the minimum distance
-          const midPoint = this.atoms[i].group.position.clone().add(this.atoms[j].group.position).divideScalar(2);
-          this.atoms[i].setTargetPosition(midPoint.clone().add(this.atoms[i].group.position.clone().sub(midPoint).normalize().multiplyScalar(combinedRadius / 2)));
-          this.atoms[j].setTargetPosition(midPoint.clone().add(this.atoms[j].group.position.clone().sub(midPoint).normalize().multiplyScalar(combinedRadius / 2)));
+          // Adjust positions to maintain the minimum distance, but only once
+          if (!this.atoms[i].hasReacted && !this.atoms[j].hasReacted) {
+            const direction = this.atoms[i].group.position.clone().sub(this.atoms[j].group.position).normalize();
+            const positionOffset = direction.multiplyScalar(combinedRadius / 2);
+            const midPoint = this.atoms[i].group.position.clone().add(this.atoms[j].group.position).divideScalar(2);
+            this.atoms[i].group.position.copy(midPoint.clone().add(positionOffset));
+            this.atoms[j].group.position.copy(midPoint.clone().sub(positionOffset));
+            this.atoms[i].hasReacted = true;
+            this.atoms[j].hasReacted = true;
+            this.atoms[i].setTargetPosition(this.atoms[i].group.position); // Stop movement
+            this.atoms[j].setTargetPosition(this.atoms[j].group.position); // Stop movement
+          }
         }
       }
     }
@@ -91,8 +99,10 @@ class App {
   moveAtomsTowardsEachOther() {
     if (this.atoms.length > 1) {
       for (let i = 0; i < this.atoms.length - 1; i++) {
-        this.atoms[i].setTargetPosition(this.atoms[i + 1].group.position);
-        this.atoms[i + 1].setTargetPosition(this.atoms[i].group.position);
+        if (!this.atoms[i].hasReacted && !this.atoms[i + 1].hasReacted) {
+          this.atoms[i].setTargetPosition(this.atoms[i + 1].group.position);
+          this.atoms[i + 1].setTargetPosition(this.atoms[i].group.position);
+        }
       }
     }
   }
