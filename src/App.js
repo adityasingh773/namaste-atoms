@@ -1,16 +1,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import Atom from './modules/Atom';
+import Atom from './modules/Atom/Atom';
 
 class App {
   constructor() {
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000,
-    );
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.position.z = 10;
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -32,7 +27,7 @@ class App {
   }
 
   addAtom() {
-    this.atom = new Atom(this.scene, 2, 2);
+    this.atom = new Atom(this.scene, 6, 6);
   }
 
   addOrbitControls() {
