@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export default class Orbit {
-  constructor(radius, color = 0x00ff00) {
+  constructor(radius, color = 0xffffff) {
     this.radius = radius;
     this.color = color;
     this.path = this.createOrbitPath();
