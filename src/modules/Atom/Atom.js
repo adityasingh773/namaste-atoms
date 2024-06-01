@@ -6,8 +6,9 @@ import Orbit from '../Orbit';
 import { calculateElectronDistribution, randomPositionInSphere } from './helpers';
 
 class Atom {
-  constructor(scene, atomicNumber, neutronNumber) {
+  constructor(scene, atomicNumber, neutronNumber, position = new THREE.Vector3(0, 0, 0)) {
     this.group = new THREE.Group();
+    this.group.position.copy(position);
     this.atomicNumber = atomicNumber;
     this.neutronNumber = neutronNumber;
     this.protons = [];
@@ -19,8 +20,6 @@ class Atom {
     this.createElectrons();
 
     scene.add(this.group); // Add the entire group to the scene
-
-    this.render(); // Start the animation loop
   }
 
   createNucleus() {
@@ -65,9 +64,7 @@ class Atom {
     });
   }
 
-  render() {
-    requestAnimationFrame(this.render.bind(this));
-    const time = Date.now() * 0.001;
+  animate(time) {
     this.animateElectrons(time);
   }
 }

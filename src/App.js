@@ -12,8 +12,10 @@ class App {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     document.body.appendChild(this.renderer.domElement);
 
+    this.atoms = []; // Array to hold multiple Atom instances
+
     this.addLights();
-    this.addAtom();
+    this.addAtom(new THREE.Vector3(0, 0, 0), 6, 6); // Add a default atom (Carbon) at the origin
     this.addOrbitControls();
     this.addEventListeners();
     this.render();
@@ -27,8 +29,9 @@ class App {
     this.scene.add(directionalLight);
   }
 
-  addAtom() {
-    this.atom = new Atom(this.scene, 6, 6);
+  addAtom(position, atomicNumber, neutronNumber) {
+    const atom = new Atom(this.scene, atomicNumber, neutronNumber, position);
+    this.atoms.push(atom); // Add the atom to the array
   }
 
   addOrbitControls() {
@@ -47,6 +50,10 @@ class App {
 
   render() {
     requestAnimationFrame(this.render.bind(this));
+
+    const time = Date.now() * 0.001;
+    this.atoms.forEach(atom => atom.animate(time)); // Animate all atoms
+
     this.renderer.render(this.scene, this.camera);
   }
 }
