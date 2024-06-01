@@ -15,7 +15,7 @@
     "jest"
   ],
   "rules": {
-    "comma-dangle": ["error", "always"],
+    "comma-dangle": [2, "always-multiline"],
     "indent": ["error", 2],
     "quotes": ["error", "single"],
     "semi": ["error", "always"]
