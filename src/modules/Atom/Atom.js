@@ -15,11 +15,16 @@ class Atom {
     this.neutrons = [];
     this.electrons = [];
     this.orbits = [];
+    this.radius = 0; // Initialize the radius
+    this.hasReacted = false; // Track if the atom has already reacted
+
+    this.targetPosition = position.clone(); // Target position for movement
 
     this.createNucleus();
     this.createElectrons();
 
     scene.add(this.group); // Add the entire group to the scene
+    this.calculateRadius(); // Calculate the radius based on the outermost orbit
   }
 
   createNucleus() {
@@ -54,6 +59,12 @@ class Atom {
     });
   }
 
+  calculateRadius() {
+    if (this.orbits.length > 0) {
+      this.radius = this.orbits[this.orbits.length - 1].radius;
+    }
+  }
+
   animateElectrons(time) {
     this.electrons.forEach((electron) => {
       electron.particle.mesh.position.set(
@@ -64,8 +75,25 @@ class Atom {
     });
   }
 
+  moveToTarget() {
+    const direction = this.targetPosition.clone().sub(this.group.position).normalize();
+    const speed = 0.05; // Adjust speed as necessary
+    const step = direction.multiplyScalar(speed);
+    this.group.position.add(step);
+
+    // If close to target, stop movement
+    if (this.group.position.distanceTo(this.targetPosition) < 0.1) {
+      this.group.position.copy(this.targetPosition);
+    }
+  }
+
   animate(time) {
     this.animateElectrons(time);
+    this.moveToTarget();
+  }
+
+  setTargetPosition(position) {
+    this.targetPosition.copy(position);
   }
 }
 
